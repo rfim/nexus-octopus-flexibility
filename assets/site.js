@@ -91,3 +91,34 @@ async function initCodeTabs() {
 }
 
 initCodeTabs();
+
+async function initArchitectureInspector() {
+  const dialog = document.getElementById('architecture-dialog');
+  const triggers = document.querySelectorAll('[data-architecture-code]');
+  if (!dialog || !triggers.length) return;
+  let snippets;
+  try {
+    const response = await fetch('assets/architecture-snippets.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    snippets = await response.json();
+  } catch (error) {
+    snippets = {};
+  }
+  triggers.forEach(trigger => trigger.addEventListener('click', () => {
+    const snippet = snippets[trigger.dataset.architectureCode];
+    document.getElementById('architecture-code-title').textContent = snippet?.title || 'Source excerpt unavailable';
+    document.getElementById('architecture-code-description').textContent = snippet?.description || 'The source excerpt could not be loaded. Please open the repository to inspect the examples.';
+    document.getElementById('architecture-code-scope').textContent = snippet?.scope || '';
+    document.getElementById('architecture-code-filename').textContent = snippet?.filename || 'Nexus repository';
+    document.getElementById('architecture-code-language').textContent = snippet?.language || '';
+    document.getElementById('architecture-code-text').textContent = snippet?.code || '';
+    document.getElementById('architecture-code-link').href = snippet?.link || 'https://github.com/rfim/nexus-octopus-flexibility';
+    dialog.showModal();
+  }));
+  document.getElementById('architecture-dialog-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target === dialog) dialog.close();
+  });
+}
+
+initArchitectureInspector();

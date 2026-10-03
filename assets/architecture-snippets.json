@@ -1,0 +1,137 @@
+{
+  "postgres": {
+    "title": "PostgreSQL source contract",
+    "description": "Illustrative PostgreSQL schema with a source key, revision and timestamp.",
+    "scope": "Illustrative schema; no database is deployed here.",
+    "filename": "examples/source_events.sql",
+    "language": "SQL",
+    "code": "-- Illustrative PostgreSQL source contract for the portfolio diagram.\nCREATE TABLE source_events (\n    id BIGINT PRIMARY KEY,\n    revision INTEGER NOT NULL CHECK (revision >= 0),\n    asset_id TEXT NOT NULL,\n    power_watts DOUBLE PRECISION NOT NULL,\n    updated_at TIMESTAMPTZ NOT NULL\n);\n\nCREATE INDEX source_events_updated_at_idx ON source_events (updated_at);",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/source_events.sql#L1-L10"
+  },
+  "partner": {
+    "title": "APIs & partner files",
+    "description": "A tested adapter converts a partner row to the event contract and rejects invalid values.",
+    "scope": "Tested local source adapter; synthetic records.",
+    "filename": "examples/architecture_patterns.py",
+    "language": "PYTHON",
+    "code": "def partner_record_to_event(record: dict) -> dict:\n    \"\"\"Map a partner file row to the shared event contract.\"\"\"\n    event_id = str(record[\"partner_event_id\"]).strip()\n    asset_id = str(record[\"asset_ref\"]).strip()\n    power_kw = float(record[\"power_watts\"]) / 1000\n    if not event_id or not asset_id or not isfinite(power_kw):\n        raise ValueError(\"partner row has an invalid ID or power value\")\n    event_time = datetime.fromisoformat(record[\"observed_at\"].replace(\"Z\", \"+00:00\"))\n    if event_time.tzinfo is None:\n        raise ValueError(\"partner timestamp needs a timezone\")\n    return {\"event_id\": event_id, \"asset_id\": asset_id,\n            \"event_time\": event_time.astimezone(timezone.utc).isoformat(),\n            \"power_kw\": power_kw}",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/architecture_patterns.py#L11-L23"
+  },
+  "kafka": {
+    "title": "Kafka + Debezium",
+    "description": "A tested Debezium value-envelope adapter preserves identity and ignores deletes as readings.",
+    "scope": "Tested envelope parser; Kafka is not running in this demo.",
+    "filename": "examples/architecture_patterns.py",
+    "language": "PYTHON",
+    "code": "def debezium_message_to_event(message: dict) -> dict | None:\n    \"\"\"Read a Debezium value envelope; deletes do not become power readings.\"\"\"\n    payload = message.get(\"payload\") if message is not None else None\n    if payload is None:  # Kafka tombstone after a delete.\n        return None\n    if payload[\"op\"] == \"d\":\n        return None\n    row = payload[\"after\"]\n    if row is None:\n        raise ValueError(\"change event has no after image\")\n    return partner_record_to_event({\n        \"partner_event_id\": f\"{row['id']}:{row['revision']}\",\n        \"asset_ref\": row[\"asset_id\"],\n        \"power_watts\": row[\"power_watts\"],\n        \"observed_at\": row[\"updated_at\"],\n    })",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/architecture_patterns.py#L26-L41"
+  },
+  "airflow": {
+    "title": "Airflow + Python",
+    "description": "An hourly DAG sketch reads a local partner file, applies the shared adapter and publishes to Delta.",
+    "scope": "Illustrative DAG; requires an Airflow environment.",
+    "filename": "examples/airflow_partner_dag.py",
+    "language": "PYTHON",
+    "code": "\"\"\"Illustrative local-file DAG; needs Airflow and the Delta dependencies to run.\"\"\"\n\nimport json\nfrom datetime import datetime\nfrom pathlib import Path\n\nfrom airflow.decorators import dag, task\n\nfrom architecture_patterns import partner_record_to_event\nfrom delta_events import publish_events\n\n\n@dag(schedule=\"@hourly\", start_date=datetime(2026, 1, 1), catchup=False)\ndef nexus_partner_ingest():\n    @task\n    def load_partner_batch() -> dict:\n        source = Path(\"/opt/airflow/data/partner-events.jsonl\")\n        rows = [json.loads(line) for line in source.read_text().splitlines() if line]\n        events = [partner_record_to_event(row) for row in rows]\n        return publish_events(\"/opt/airflow/data/nexus-delta\", events)\n\n    load_partner_batch()\n\n\nnexus_partner_ingest()",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/airflow_partner_dag.py#L1-L25"
+  },
+  "databricks": {
+    "title": "Databricks SQL",
+    "description": "A Databricks SQL view sketch exposes a curated daily product from a validated Delta Silver table.",
+    "scope": "Illustrative SQL; no Databricks workspace is connected.",
+    "filename": "examples/gold_daily_flexibility.sql",
+    "language": "SQL",
+    "code": "-- Illustrative Databricks SQL model over a validated Delta Silver table.\n-- Interval energy needs measured interval width; this model shows a daily\n-- event-count and average-power product without claiming measured energy.\nCREATE OR REPLACE VIEW gold_daily_flexibility AS\nSELECT\n    asset_id,\n    DATE(to_timestamp(event_time)) AS event_day,\n    COUNT(*) AS event_count,\n    AVG(power_kw) AS average_power_kw,\n    MAX(to_timestamp(event_time)) AS latest_event_at\nFROM silver_events\nGROUP BY asset_id, DATE(to_timestamp(event_time));",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/gold_daily_flexibility.sql#L1-L12"
+  },
+  "spark": {
+    "title": "Apache Spark",
+    "description": "A Spark Silver transform rejects invalid rows and keeps the latest ingested version of each event ID.",
+    "scope": "Illustrative transform; requires a Spark runtime.",
+    "filename": "examples/spark_silver.py",
+    "language": "PYTHON",
+    "code": "def build_silver_events(bronze: DataFrame) -> DataFrame:\n    typed = bronze.select(\n        \"event_id\", \"asset_id\", \"ingested_at\",\n        F.to_timestamp(\"event_time\").alias(\"event_time\"),\n        F.col(\"power_kw\").cast(\"double\").alias(\"power_kw\"),\n    )\n    invalid = typed.filter(\n        F.col(\"event_id\").isNull() | F.col(\"asset_id\").isNull()\n        | (F.trim(F.col(\"event_id\")) == \"\") | (F.trim(F.col(\"asset_id\")) == \"\")\n        | F.col(\"event_time\").isNull() | F.isnan(\"power_kw\")\n        | F.col(\"power_kw\").isNull() | (F.abs(F.col(\"power_kw\")) == float(\"inf\"))\n        | F.col(\"ingested_at\").isNull()\n    )\n    if invalid.limit(1).count():\n        raise ValueError(\"Bronze contains records that fail the Silver contract\")\n    newest = Window.partitionBy(\"event_id\").orderBy(F.col(\"ingested_at\").desc())\n    return (typed.withColumn(\"_rank\", F.row_number().over(newest))\n            .filter(F.col(\"_rank\") == 1).drop(\"_rank\"))",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/spark_silver.py#L6-L23"
+  },
+  "delta": {
+    "title": "Delta Lake",
+    "description": "The runnable local reference uses Delta MERGE so repeated event IDs do not create duplicate visible rows.",
+    "scope": "Runnable local Delta Lake reference; synthetic events.",
+    "filename": "examples/delta_events.py",
+    "language": "PYTHON",
+    "code": "def publish_events(table_path: str | Path, events: list[dict]) -> dict:\n    \"\"\"Validate, then MERGE unseen event IDs into a local Delta table.\"\"\"\n    source = validate_events(events)  # A bad batch cannot create or change the table.\n    table_path = Path(table_path)\n    if not (table_path / \"_delta_log\").exists():\n        write_deltalake(str(table_path), pa.Table.from_pylist([], schema=EVENT_SCHEMA))\n\n    table = DeltaTable(str(table_path))\n    return (\n        table.merge(\n            source=source,\n            predicate=\"target.event_id = source.event_id\",\n            source_alias=\"source\",\n            target_alias=\"target\",\n        )\n        .when_not_matched_insert_all()\n        .execute()\n    )",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/delta_events.py#L63-L80"
+  },
+  "bronze": {
+    "title": "Bronze · durable write",
+    "description": "The runnable reference validates then MERGEs unseen IDs to one Delta table. A full Bronze/Silver/Gold deployment is not included.",
+    "scope": "Runnable local Delta Lake reference; synthetic events.",
+    "filename": "examples/delta_events.py",
+    "language": "PYTHON",
+    "code": "def publish_events(table_path: str | Path, events: list[dict]) -> dict:\n    \"\"\"Validate, then MERGE unseen event IDs into a local Delta table.\"\"\"\n    source = validate_events(events)  # A bad batch cannot create or change the table.\n    table_path = Path(table_path)\n    if not (table_path / \"_delta_log\").exists():\n        write_deltalake(str(table_path), pa.Table.from_pylist([], schema=EVENT_SCHEMA))\n\n    table = DeltaTable(str(table_path))\n    return (\n        table.merge(\n            source=source,\n            predicate=\"target.event_id = source.event_id\",\n            source_alias=\"source\",\n            target_alias=\"target\",\n        )\n        .when_not_matched_insert_all()\n        .execute()\n    )",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/delta_events.py#L63-L80"
+  },
+  "silver": {
+    "title": "Silver · quality gate",
+    "description": "The source contract rejects a whole batch before a Delta write when IDs, timestamps or power values fail checks.",
+    "scope": "Runnable local Delta Lake reference; synthetic events.",
+    "filename": "examples/delta_events.py",
+    "language": "PYTHON",
+    "code": "def validate_events(events: list[dict]) -> pa.Table:\n    \"\"\"Reject an entire batch if any event fails its source contract.\"\"\"\n    if not events:\n        raise ValueError(\"A batch needs at least one event\")\n\n    seen: set[str] = set()\n    rows: list[dict] = []\n    for event in events:\n        event_id = event.get(\"event_id\")\n        asset_id = event.get(\"asset_id\")\n        if not isinstance(event_id, str) or not event_id.strip():\n            raise ValueError(\"event_id is required\")\n        if event_id in seen:\n            raise ValueError(f\"duplicate event_id in batch: {event_id}\")\n        if not isinstance(asset_id, str) or not asset_id.strip():\n            raise ValueError(\"asset_id is required\")\n\n        try:\n            timestamp = datetime.fromisoformat(event[\"event_time\"].replace(\"Z\", \"+00:00\"))\n            power_kw = float(event[\"power_kw\"])\n        except (AttributeError, KeyError, TypeError, ValueError) as exc:\n            raise ValueError(f\"invalid event fields: {event_id}\") from exc\n        if timestamp.tzinfo is None or not isfinite(power_kw):\n            raise ValueError(f\"event needs timezone and finite power: {event_id}\")\n\n        seen.add(event_id)\n        rows.append(\n            {\n                \"event_id\": event_id,\n                \"asset_id\": asset_id,\n                \"event_time\": timestamp.astimezone(timezone.utc).isoformat(),\n                \"power_kw\": power_kw,\n            }\n        )\n\n    return pa.Table.from_pylist(rows, schema=EVENT_SCHEMA)",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/delta_events.py#L25-L60"
+  },
+  "gold": {
+    "title": "Gold · curated model",
+    "description": "An illustrative Databricks SQL view publishes daily event counts and average power from validated Silver rows.",
+    "scope": "Illustrative SQL; the view is not deployed.",
+    "filename": "examples/gold_daily_flexibility.sql",
+    "language": "SQL",
+    "code": "-- Illustrative Databricks SQL model over a validated Delta Silver table.\n-- Interval energy needs measured interval width; this model shows a daily\n-- event-count and average-power product without claiming measured energy.\nCREATE OR REPLACE VIEW gold_daily_flexibility AS\nSELECT\n    asset_id,\n    DATE(to_timestamp(event_time)) AS event_day,\n    COUNT(*) AS event_count,\n    AVG(power_kw) AS average_power_kw,\n    MAX(to_timestamp(event_time)) AS latest_event_at\nFROM silver_events\nGROUP BY asset_id, DATE(to_timestamp(event_time));",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/gold_daily_flexibility.sql#L1-L12"
+  },
+  "analytics": {
+    "title": "Analytics & BI",
+    "description": "A consumer query reads the curated Gold view so the model owns the shared definition.",
+    "scope": "Illustrative SQL; no BI system is connected.",
+    "filename": "examples/analytics_product.sql",
+    "language": "SQL",
+    "code": "-- Illustrative certified consumer query; the Gold view owns the definition.\nSELECT\n    event_day,\n    SUM(event_count) AS event_count,\n    AVG(average_power_kw) AS average_asset_power_kw,\n    MAX(latest_event_at) AS latest_event_at\nFROM gold_daily_flexibility\nGROUP BY event_day\nORDER BY event_day DESC;",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/analytics_product.sql#L1-L9"
+  },
+  "crm": {
+    "title": "CRM & data science",
+    "description": "A tested projection publishes only approved fields from an event, omitting unrelated source data.",
+    "scope": "Tested local projection; no CRM is connected.",
+    "filename": "examples/architecture_patterns.py",
+    "language": "PYTHON",
+    "code": "def crm_export_row(event: dict) -> dict:\n    \"\"\"Expose a narrow, versionable consumer record instead of raw source data.\"\"\"\n    return {\"asset_id\": event[\"asset_id\"],\n            \"observed_at\": event[\"event_time\"],\n            \"latest_power_kw\": event[\"power_kw\"]}",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/architecture_patterns.py#L44-L48"
+  },
+  "mcp": {
+    "title": "MCP agents & RAG",
+    "description": "A tested read-only boundary allows named metrics and rejects arbitrary data requests.",
+    "scope": "Tested boundary function; no MCP or RAG server is deployed.",
+    "filename": "examples/architecture_patterns.py",
+    "language": "PYTHON",
+    "code": "def read_approved_metric(name: str, published_metrics: dict) -> object:\n    \"\"\"Read-only tool boundary for a future agent; no arbitrary query execution.\"\"\"\n    if name not in APPROVED_METRICS:\n        raise PermissionError(f\"metric is not approved: {name}\")\n    if name not in published_metrics:\n        raise KeyError(name)\n    return published_metrics[name]",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/architecture_patterns.py#L54-L60"
+  },
+  "trust": {
+    "title": "Trust across the flow",
+    "description": "The test proves a failed batch leaves the Delta transaction version and visible row count unchanged.",
+    "scope": "Runnable local test for validation before publish.",
+    "filename": "examples/test_delta_events.py",
+    "language": "PYTHON",
+    "code": "    def test_bad_batch_does_not_publish(self) -> None:\n        with TemporaryDirectory() as directory:\n            publish_events(directory, [event(\"evt-1\")])\n            before = DeltaTable(directory).version()\n\n            with self.assertRaises(ValueError):\n                publish_events(directory, [event(\"evt-2\"), event(\"evt-3\", float(\"nan\"))])\n\n            table = DeltaTable(directory)\n            self.assertEqual(table.version(), before)\n            self.assertEqual(table.to_pyarrow_table().num_rows, 1)",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/test_delta_events.py#L33-L43"
+  },
+  "foundation": {
+    "title": "Platform foundation",
+    "description": "The local Delta reference pins its Python dependencies. AWS and Databricks are shown in the architecture, not deployed by this demo.",
+    "scope": "Dependency manifest for the local runnable reference.",
+    "filename": "examples/requirements.txt",
+    "language": "TEXT",
+    "code": "deltalake==1.6.6\npyarrow==21.0.0",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/requirements.txt#L1-L2"
+  }
+}

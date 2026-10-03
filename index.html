@@ -36,42 +36,81 @@
 
     </section>
 
+    <section class="opening-story" aria-label="VIM and Lifepal platform story">
+      <div class="page-width">
+        <div class="opening-grid">
+          <div class="opening-copy">
+          <p class="opening-statement">Build the data foundation that flexibility can move on.</p>
+          <p class="opening-lede">I’m Firman Insan Muhammad. You can call me VIM. Pull up a chair: this is the platform I built at Lifepal, the decisions behind it, and how I would apply those patterns to Octopus Energy’s new Flexibility data capability.</p>
+          <div class="opening-actions">
+            <a class="button button-light" href="#conversation">Start the conversation</a>
+            <a class="text-link light-link" href="#proof">Inspect the code <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="opening-note">The production outcomes are from my Lifepal work. The energy design is a proposal for this role. The runnable Python/Delta Lake example is a separate Nexus portfolio reference.</p>
+          </div>
+          <div class="opening-card" aria-label="Built at Lifepal highlight">
+            <div class="card-topline"><span class="card-label">Built at Lifepal</span><span class="card-symbol" aria-hidden="true">✳</span></div>
+            <div class="lifepal-logo"><img src="assets/roojai-lifepal-transparent.png" alt="Roojai and Lifepal"></div>
+            <p class="opening-card-question">A governed lakehouse built for speed <em>and</em> trust.</p>
+            <p class="opening-card-answer">Streaming and batch sources, shared quality rules, curated models, and a clearer route to trusted decisions.</p>
+            <div class="hero-outcomes" aria-label="Reported Lifepal outcomes"><span><strong>24h → &lt;5m</strong><small>reporting delay</small></span><span><strong>500+</strong><small>quality checks</small></span></div>
+            <p class="card-foot">Lifepal platform experience · presented to Octopus Energy</p>
+          </div>
+        </div>
+      </div>
+      <div class="opening-meta page-width"><span>London, United Kingdom</span><span>Python · SQL · Spark · Databricks · AWS · Airflow</span><span>Scroll to explore ↓</span></div>
+    </section>
+
     <section id="system" class="system-section" aria-labelledby="system-title">
       <div class="page-width">
         <div class="system-heading"><div><p class="eyebrow light"><span class="eyebrow-line"></span> Architecture overview</p><h2 id="system-title">One dependable path from signal to decision.</h2></div><p>Nexus joins streaming and batch work around a governed layer. That is the foundation I would bring to a greenfield flexibility platform.</p></div>
+        <details class="architecture-accordion" open>
+          <summary class="architecture-accordion-summary">
+            <span class="architecture-accordion-copy"><span class="map-overline">Interactive architecture</span><strong>Explore the Nexus system map</strong><small>Sources → ingestion → Delta Lake → trusted use</small></span>
+            <span class="architecture-accordion-action"><span class="architecture-open-label">Hide map</span><span class="architecture-closed-label">Show map</span><span class="architecture-accordion-icon" aria-hidden="true">⌄</span></span>
+          </summary>
         <figure class="architecture-map" aria-labelledby="architecture-title" aria-describedby="architecture-caption">
           <figcaption class="architecture-header">
-            <div><span class="map-overline">System map / production platform</span><h3 id="architecture-title">How Nexus moves from source to decision</h3><p>The streaming and scheduled paths meet in one governed lakehouse.</p></div>
+            <div><span class="map-overline">System map / production platform</span><h3 id="architecture-title">How Nexus moves from source to decision</h3><p>The streaming and scheduled paths meet in one governed lakehouse. Select any block to inspect its code.</p></div>
             <div class="map-legend" aria-label="Path legend"><span><i class="legend-dot hot"></i> Event path</span><span><i class="legend-dot batch"></i> Scheduled path</span><span><i class="legend-dot pulse-key"></i> Publish pulse</span></div>
           </figcaption>
           <div class="architecture-flow" role="list" aria-label="Nexus platform architecture">
             <section class="architecture-stage" role="listitem" aria-labelledby="map-sources-title">
               <div class="stage-heading"><span>01 / Input</span><h4 id="map-sources-title">Sources</h4><p>Identify the origin and arrival contract.</p></div>
-              <div class="architecture-card hot"><span class="card-kind">Event lane · operational changes</span><div class="stack-card-title"><span class="stack-logo"><img src="assets/stack/postgresql.svg" alt=""></span><strong>PostgreSQL</strong></div><small>Row changes with keys and source timestamps.</small></div>
-              <div class="architecture-card batch"><span class="card-kind">Scheduled lane · external inputs</span><div class="stack-card-title"><span class="stack-logo generic-symbol" aria-hidden="true">↧</span><strong>APIs & partner files</strong></div><small>Versioned extracts and partner payloads.</small></div>
+              <button type="button" class="architecture-card hot map-code-trigger" data-architecture-code="postgres" aria-haspopup="dialog"><span class="card-kind">Event lane · operational changes</span><span class="stack-card-title"><span class="stack-logo"><img src="assets/stack/postgresql.svg" alt=""></span><strong>PostgreSQL</strong></span><small>Row changes with keys and source timestamps.</small><span class="inspect-hint">Inspect code ↗</span></button>
+              <button type="button" class="architecture-card batch map-code-trigger" data-architecture-code="partner" aria-haspopup="dialog"><span class="card-kind">Scheduled lane · external inputs</span><span class="stack-card-title"><span class="stack-logo generic-symbol" aria-hidden="true">↧</span><strong>APIs & partner files</strong></span><small>Versioned extracts and partner payloads.</small><span class="inspect-hint">Inspect code ↗</span></button>
               <span class="flow-connector" aria-hidden="true"></span>
             </section>
             <section class="architecture-stage" role="listitem" aria-labelledby="map-ingest-title">
               <div class="stage-heading"><span>02 / Move</span><h4 id="map-ingest-title">Ingestion</h4><p>One replayable route for each cadence.</p></div>
-              <div class="architecture-card hot"><span class="card-kind">Streaming · change data capture</span><div class="stack-card-title"><span class="stack-logo"><img src="assets/stack/kafka.svg" alt=""></span><strong>Kafka + Debezium</strong></div><small>Capture changes; track offsets and lag.</small></div>
-              <div class="architecture-card batch"><span class="card-kind">Scheduled · configurable adapters</span><div class="stack-card-title"><span class="stack-logo duo-logo"><img src="assets/stack/airflow.svg" alt=""><img src="assets/stack/python.svg" alt=""></span><strong>Airflow + Python</strong></div><small>Orchestrate loads with shared source rules.</small></div>
+              <button type="button" class="architecture-card hot map-code-trigger" data-architecture-code="kafka" aria-haspopup="dialog"><span class="card-kind">Streaming · change data capture</span><span class="stack-card-title"><span class="stack-logo"><img src="assets/stack/kafka.svg" alt=""></span><strong>Kafka + Debezium</strong></span><small>Capture changes; track offsets and lag.</small><span class="inspect-hint">Inspect code ↗</span></button>
+              <button type="button" class="architecture-card batch map-code-trigger" data-architecture-code="airflow" aria-haspopup="dialog"><span class="card-kind">Scheduled · configurable adapters</span><span class="stack-card-title"><span class="stack-logo duo-logo"><img src="assets/stack/airflow.svg" alt=""><img src="assets/stack/python.svg" alt=""></span><strong>Airflow + Python</strong></span><small>Orchestrate loads with shared source rules.</small><span class="inspect-hint">Inspect code ↗</span></button>
               <span class="flow-connector" aria-hidden="true"></span>
             </section>
             <section class="architecture-stage lake-stage" role="listitem" aria-labelledby="map-lake-title">
               <div class="stage-heading"><span>03 / Govern</span><h4 id="map-lake-title">Lakehouse</h4><p>Merge both paths behind one contract.</p></div>
-              <div class="stack-strip" aria-label="Databricks, Apache Spark and Delta Lake"><span><img src="assets/stack/databricks.svg" alt="">Databricks</span><span><img src="assets/stack/spark.svg" alt="">Spark</span><span><img src="assets/stack/delta-lake.svg" alt="">Delta Lake</span></div>
-              <div class="architecture-layer"><b>Bronze</b><span>Raw history · traceable loads</span></div><div class="architecture-layer"><b>Silver</b><span>Typed · deduplicated · checked</span></div><div class="architecture-layer"><b>Gold</b><span>dbt / SQL · Kimball models</span></div>
+              <div class="stack-strip" aria-label="Inspect Databricks, Apache Spark and Delta Lake code"><button type="button" class="map-code-trigger" data-architecture-code="databricks" aria-haspopup="dialog"><img src="assets/stack/databricks.svg" alt="">Databricks</button><button type="button" class="map-code-trigger" data-architecture-code="spark" aria-haspopup="dialog"><img src="assets/stack/spark.svg" alt="">Spark</button><button type="button" class="map-code-trigger" data-architecture-code="delta" aria-haspopup="dialog"><img src="assets/stack/delta-lake.svg" alt="">Delta Lake</button></div>
+              <button type="button" class="architecture-layer map-code-trigger" data-architecture-code="bronze" aria-haspopup="dialog"><b>Bronze</b><span>Raw history · traceable loads</span><span class="inspect-hint">Inspect code ↗</span></button><button type="button" class="architecture-layer map-code-trigger" data-architecture-code="silver" aria-haspopup="dialog"><b>Silver</b><span>Typed · deduplicated · checked</span><span class="inspect-hint">Inspect code ↗</span></button><button type="button" class="architecture-layer map-code-trigger" data-architecture-code="gold" aria-haspopup="dialog"><b>Gold</b><span>dbt / SQL · Kimball models</span><span class="inspect-hint">Inspect code ↗</span></button>
               <p class="lake-foot">Quality gates before certified publish</p>
               <span class="flow-connector" aria-hidden="true"></span>
             </section>
             <section class="architecture-stage" role="listitem" aria-labelledby="map-serve-title">
               <div class="stage-heading"><span>04 / Serve</span><h4 id="map-serve-title">Trusted use</h4><p>Publish products with clear ownership.</p></div>
-              <div class="architecture-card serve"><span class="card-kind">Decision layer</span><strong>Analytics & BI</strong><small>Certified metrics and shared definitions.</small></div><div class="architecture-card serve"><span class="card-kind">Operational layer</span><strong>CRM & data science</strong><small>Curated datasets for team workflows.</small></div><div class="architecture-card serve"><span class="card-kind">Governed access</span><strong>MCP agents & RAG</strong><small>Read-only paths to approved models.</small></div>
+              <button type="button" class="architecture-card serve map-code-trigger" data-architecture-code="analytics" aria-haspopup="dialog"><span class="card-kind">Decision layer</span><strong>Analytics & BI</strong><small>Certified metrics and shared definitions.</small><span class="inspect-hint">Inspect code ↗</span></button><button type="button" class="architecture-card serve map-code-trigger" data-architecture-code="crm" aria-haspopup="dialog"><span class="card-kind">Operational layer</span><strong>CRM & data science</strong><small>Curated datasets for team workflows.</small><span class="inspect-hint">Inspect code ↗</span></button><button type="button" class="architecture-card serve map-code-trigger" data-architecture-code="mcp" aria-haspopup="dialog"><span class="card-kind">Governed access</span><strong>MCP agents & RAG</strong><small>Read-only paths to approved models.</small><span class="inspect-hint">Inspect code ↗</span></button>
             </section>
           </div>
-          <div class="architecture-rails"><div class="architecture-rail"><strong>Trust across the flow</strong><span>500+ quality checks</span><span>Freshness & volume alerts</span><span>SLAs & incident runbooks</span><span>Certified models</span></div><div class="architecture-rail foundation"><strong>Platform foundation</strong><span class="foundation-brand"><img src="assets/stack/aws.svg" alt=""> AWS services</span><span class="foundation-brand"><img src="assets/stack/databricks.svg" alt=""> Databricks & Delta Lake</span><span class="foundation-brand"><img src="assets/stack/python.svg" alt=""> Reusable Python framework</span><span>Observability</span></div></div>
+          <div class="architecture-rails"><button type="button" class="architecture-rail map-code-trigger" data-architecture-code="trust" aria-haspopup="dialog"><strong>Trust across the flow</strong><span>500+ quality checks</span><span>Freshness & volume alerts</span><span>SLAs & incident runbooks</span><span>Certified models</span><em class="inspect-hint">Inspect test ↗</em></button><button type="button" class="architecture-rail foundation map-code-trigger" data-architecture-code="foundation" aria-haspopup="dialog"><strong>Platform foundation</strong><span class="foundation-brand"><img src="assets/stack/aws.svg" alt=""> AWS services</span><span class="foundation-brand"><img src="assets/stack/databricks.svg" alt=""> Databricks & Delta Lake</span><span class="foundation-brand"><img src="assets/stack/python.svg" alt=""> Reusable Python framework</span><span>Observability</span><em class="inspect-hint">Inspect config ↗</em></button></div>
           <p class="architecture-caption" id="architecture-caption">This maps the Lifepal platform work described in my CV. The Delta Lake reference implementation in the <a href="#proof">code section</a> is a separate portfolio example.</p>
         </figure>
+        </details>
+        <dialog class="architecture-dialog" id="architecture-dialog" aria-labelledby="architecture-code-title" aria-describedby="architecture-code-description">
+          <div class="architecture-dialog-head"><div><span class="map-overline">Nexus code inspector</span><h3 id="architecture-code-title">Architecture code</h3></div><button type="button" class="architecture-dialog-close" id="architecture-dialog-close" aria-label="Close code inspector">×</button></div>
+          <p id="architecture-code-description"></p>
+          <p class="architecture-dialog-scope" id="architecture-code-scope"></p>
+          <div class="architecture-dialog-file"><span id="architecture-code-filename"></span><span id="architecture-code-language"></span></div>
+          <pre class="architecture-dialog-code"><code id="architecture-code-text"></code></pre>
+          <div class="architecture-dialog-footer"><a id="architecture-code-link" href="#proof" target="_blank" rel="noopener noreferrer">Inspect full file ↗</a><span>Local portfolio reference</span></div>
+        </dialog>
       </div>
     </section>
 
@@ -130,31 +169,6 @@
         </div>
         <p class="math-footnote">The formulas are design and monitoring tools. Only the 24 h to under 5 min result above is a reported Lifepal outcome; the other symbols do not imply measured Octopus or Lifepal SLO values.</p>
       </div>
-    </section>
-
-    <section class="opening-story" aria-label="VIM and Lifepal platform story">
-      <div class="page-width">
-        <div class="opening-grid">
-          <div class="opening-copy">
-          <p class="opening-statement">Build the data foundation that flexibility can move on.</p>
-          <p class="opening-lede">I’m Firman Insan Muhammad. You can call me VIM. Pull up a chair: this is the platform I built at Lifepal, the decisions behind it, and how I would apply those patterns to Octopus Energy’s new Flexibility data capability.</p>
-          <div class="opening-actions">
-            <a class="button button-light" href="#conversation">Start the conversation</a>
-            <a class="text-link light-link" href="#proof">Inspect the code <span aria-hidden="true">↗</span></a>
-          </div>
-          <p class="opening-note">The production outcomes are from my Lifepal work. The energy design is a proposal for this role. The runnable Python/Delta Lake example is a separate Nexus portfolio reference.</p>
-          </div>
-          <div class="opening-card" aria-label="Built at Lifepal highlight">
-            <div class="card-topline"><span class="card-label">Built at Lifepal</span><span class="card-symbol" aria-hidden="true">✳</span></div>
-            <div class="lifepal-logo"><img src="assets/roojai-lifepal-transparent.png" alt="Roojai and Lifepal"></div>
-            <p class="opening-card-question">A governed lakehouse built for speed <em>and</em> trust.</p>
-            <p class="opening-card-answer">Streaming and batch sources, shared quality rules, curated models, and a clearer route to trusted decisions.</p>
-            <div class="hero-outcomes" aria-label="Reported Lifepal outcomes"><span><strong>24h → &lt;5m</strong><small>reporting delay</small></span><span><strong>500+</strong><small>quality checks</small></span></div>
-            <p class="card-foot">Lifepal platform experience · presented to Octopus Energy</p>
-          </div>
-        </div>
-      </div>
-      <div class="opening-meta page-width"><span>London, United Kingdom</span><span>Python · SQL · Spark · Databricks · AWS · Airflow</span><span>Scroll to explore ↓</span></div>
     </section>
 
     <section class="adaptation-section" aria-label="Proposed adaptation for Octopus Flexibility"><div class="page-width"><div class="flex-bridge"><div><span class="bridge-label">Proposed adaptation · Octopus Flexibility</span><h3>Start small. Make the contract strong.</h3><p>In the role’s new AWS environment, I would first land device and programme events with explicit ownership, event time, replay keys and quality checks. S3 Parquet or Delta Lake would carry durable history; Databricks would expose curated models to the established warehouse.</p></div><div class="bridge-steps"><span><b>01</b> Python ingestion + source contracts</span><span><b>02</b> Airflow orchestration + observable SLAs</span><span><b>03</b> Databricks / dbt / SQL models</span><span><b>04</b> Reusable patterns for backend engineers</span></div></div><div class="system-principle"><span class="principle-mark" aria-hidden="true">↳</span><p><strong>Operating principle:</strong> If a pipeline cannot explain what it last published, how fresh it is, and who owns the failure, it is not finished.</p></div></div></section>
