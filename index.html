@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#180b34">
+  <meta name="description" content="NEXUS: VIM's data platform case study, presented for Octopus Energy's Senior Data Engineer role in the Flexibility team. Architecture, equations, outcomes and working code.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NEXUS for Octopus Energy Flexibility | VIM</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23180b34'/%3E%3Cpath d='M15 45V19h7l20 19V19h7v26h-7L22 26v19z' fill='%23f93ed5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#system">Skip to architecture</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Nexus presentation, back to top"><span class="brand-mark" aria-hidden="true">N</span><span><strong>NEXUS</strong><small>VIM · Data engineering</small></span></a>
+    <nav aria-label="Primary navigation">
+      <a href="#system">System</a>
+      <a href="#math">Equations</a>
+      <a href="#conversation">Conversation</a>
+      <a href="#proof">Code & proof</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="opening" aria-labelledby="opening-title">
+      <div class="opening-inner page-width">
+        <div class="presentation-line">
+          <div><span class="presentation-kicker">An engineering conversation by VIM</span><span class="presentation-for">Presented for Octopus Energy · Flexibility</span></div>
+          <div class="octopus-lockup" aria-label="Octopus Energy logo"><img src="assets/octopus-energy-logo.png" alt="Octopus Energy"></div>
+        </div>
+        <div class="nexus-banner"><p class="banner-label">Platform case study <span aria-hidden="true">/</span> architecture <span aria-hidden="true">/</span> working code</p><h1 id="opening-title">NEXUS<span class="title-period">.</span></h1></div>
+        <div class="opening-grid">
+          <div class="opening-copy">
+          <p class="opening-statement">Build the data foundation that flexibility can move on.</p>
+          <p class="opening-lede">I’m Firman Insan Muhammad. You can call me VIM. Pull up a chair: this is the platform I built at Lifepal, the decisions behind it, and how I would apply those patterns to Octopus Energy’s new Flexibility data capability.</p>
+          <div class="opening-actions">
+            <a class="button button-light" href="#conversation">Start the conversation</a>
+            <a class="text-link light-link" href="#proof">Inspect the code <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="opening-note">The production outcomes are from my Lifepal work. The energy design is a proposal for this role. The Go/Iceberg code is a separate, testable Nexus portfolio implementation.</p>
+          </div>
+          <div class="opening-card" aria-label="Built at Lifepal highlight">
+            <div class="card-topline"><span class="card-label">Built at Lifepal</span><span class="card-symbol" aria-hidden="true">✳</span></div>
+            <div class="lifepal-logo"><img src="assets/roojai-lifepal-transparent.png" alt="Roojai and Lifepal"></div>
+            <p class="opening-card-question">A governed lakehouse built for speed <em>and</em> trust.</p>
+            <p class="opening-card-answer">Streaming and batch sources, shared quality rules, curated models, and a clearer route to trusted decisions.</p>
+            <div class="hero-outcomes" aria-label="Reported Lifepal outcomes"><span><strong>24h → &lt;5m</strong><small>reporting delay</small></span><span><strong>500+</strong><small>quality checks</small></span></div>
+            <p class="card-foot">Lifepal platform experience · presented to Octopus Energy</p>
+          </div>
+        </div>
+      </div>
+      <div class="opening-meta page-width"><span>London, United Kingdom</span><span>Python · SQL · Spark · Databricks · AWS · Airflow</span><span>Scroll to explore ↓</span></div>
+    </section>
+
+    <section id="system" class="system-section" aria-labelledby="system-title">
+      <div class="page-width">
+        <div class="system-heading"><div><p class="eyebrow light"><span class="eyebrow-line"></span> Architecture overview</p><h2 id="system-title">One dependable path from signal to decision.</h2></div><p>Nexus joins streaming and batch work around a governed layer. That is the foundation I would bring to a greenfield flexibility platform.</p></div>
+        <div class="system-flow" role="list" aria-label="Nexus data flow">
+          <div class="flow-node" role="listitem"><span class="flow-num">01 / Acquire</span><h3>Sources arrive</h3><p>PostgreSQL change events, APIs and partner files.</p><span class="flow-tech">Kafka · Debezium · AWS</span></div>
+          <div class="flow-node" role="listitem"><span class="flow-num">02 / Govern</span><h3>Rules travel with data</h3><p>Reusable ingestion, quality gates, freshness and ownership.</p><span class="flow-tech">Python · checks · SLAs</span></div>
+          <div class="flow-node" role="listitem"><span class="flow-num">03 / Model</span><h3>Meanings settle</h3><p>Curated Bronze, Silver and Gold models with agreed metrics.</p><span class="flow-tech">Spark · dbt · SQL</span></div>
+          <div class="flow-node" role="listitem"><span class="flow-num">04 / Serve</span><h3>Teams can trust it</h3><p>Analytics, operational applications and governed access.</p><span class="flow-tech">SQL · APIs · dashboards</span></div>
+        </div>
+        <div class="flex-bridge"><div><span class="bridge-label">Proposed adaptation · Octopus Flexibility</span><h3>Start small. Make the contract strong.</h3><p>In the role’s new AWS environment, I would first land device and programme events with explicit ownership, event time, replay keys and quality checks. S3 Parquet or Delta would carry durable history; Databricks would expose curated models to the established warehouse.</p></div><div class="bridge-steps"><span><b>01</b> Python ingestion + source contracts</span><span><b>02</b> Airflow orchestration + observable SLAs</span><span><b>03</b> Databricks / dbt / SQL models</span><span><b>04</b> Reusable patterns for backend engineers</span></div></div>
+        <div class="system-principle"><span class="principle-mark" aria-hidden="true">↳</span><p><strong>Operating principle:</strong> If a pipeline cannot explain what it last published, how fresh it is, and who owns the failure, it is not finished.</p></div>
+        <figure class="architecture-map" aria-labelledby="architecture-title" aria-describedby="architecture-caption">
+          <figcaption class="architecture-header">
+            <div><span class="map-overline">System map / production platform</span><h3 id="architecture-title">How Nexus moves from source to decision</h3><p>The streaming and scheduled paths meet in one governed lakehouse.</p></div>
+            <div class="map-legend" aria-label="Path legend"><span><i class="legend-dot hot"></i> Streaming path</span><span><i class="legend-dot batch"></i> Batch path</span></div>
+          </figcaption>
+          <div class="architecture-flow" role="list" aria-label="Nexus platform architecture">
+            <section class="architecture-stage" role="listitem" aria-labelledby="map-sources-title"><div class="stage-heading"><span>01 / Input</span><h4 id="map-sources-title">Sources</h4></div><div class="architecture-card hot"><span class="card-kind">Change events</span><strong>PostgreSQL</strong><small>Operational records</small></div><div class="architecture-card batch"><span class="card-kind">Scheduled data</span><strong>APIs & partner files</strong><small>External and batch sources</small></div></section>
+            <section class="architecture-stage" role="listitem" aria-labelledby="map-ingest-title"><div class="stage-heading"><span>02 / Move</span><h4 id="map-ingest-title">Ingestion</h4></div><div class="architecture-card hot"><span class="card-kind">Streaming path</span><strong>Kafka + Debezium</strong><small>Change data capture</small></div><div class="architecture-card batch"><span class="card-kind">Batch path</span><strong>Airflow + Python</strong><small>Config-driven source adapters</small></div></section>
+            <section class="architecture-stage lake-stage" role="listitem" aria-labelledby="map-lake-title"><div class="stage-heading"><span>03 / Shape</span><h4 id="map-lake-title">Governed lakehouse</h4></div><div class="architecture-layer"><b>Bronze</b><span>Delta · source history</span></div><div class="architecture-layer"><b>Silver</b><span>Typed, deduplicated data</span></div><div class="architecture-layer"><b>Gold</b><span>dbt · curated Kimball models</span></div><p class="lake-foot">Databricks · Spark · SQL</p></section>
+            <section class="architecture-stage" role="listitem" aria-labelledby="map-serve-title"><div class="stage-heading"><span>04 / Use</span><h4 id="map-serve-title">Trusted use</h4></div><div class="architecture-card serve"><strong>Analytics & BI</strong><small>Shared, agreed metrics</small></div><div class="architecture-card serve"><strong>CRM & data science</strong><small>Curated data products</small></div><div class="architecture-card serve"><strong>MCP agents & RAG</strong><small>Governed access to models</small></div></section>
+          </div>
+          <div class="architecture-rails"><div class="architecture-rail"><strong>Trust across the flow</strong><span>500+ quality checks</span><span>Freshness & volume alerts</span><span>SLAs & incident runbooks</span><span>Certified models</span></div><div class="architecture-rail foundation"><strong>Platform foundation</strong><span>AWS services</span><span>Databricks & Delta Lake</span><span>Reusable Python framework</span><span>Observability</span></div></div>
+          <p class="architecture-caption" id="architecture-caption">This maps the Lifepal platform work described in my CV. The separate Go/Iceberg operator is explored in the <a href="#proof">code section</a>.</p>
+        </figure>
+      </div>
+    </section>
+
+    <section id="math" class="math-section" aria-labelledby="math-title">
+      <div class="page-width">
+        <div class="math-heading">
+          <div><p class="eyebrow"><span class="eyebrow-line"></span> The numbers behind the design</p><h2 id="math-title">The math behind trust.</h2></div>
+          <p>Open a topic to see the equations behind freshness, quality, energy flexibility, safe publishing and operations. These are design tools, not measured Octopus production metrics.</p>
+        </div>
+        <div class="math-feature" aria-label="Reported Lifepal reporting delay improvement">
+          <span class="math-feature-label">Reported Lifepal outcome · derived ratio</span>
+          <strong>24 h ÷ (&lt;5 min) &gt; 288×</strong>
+          <p>The reporting delay changed from 24 hours to under five minutes, as stated in my CV. The ratio expresses how much smaller the delay became.</p>
+        </div>
+        <div class="math-accordion" aria-label="Data platform equations">
+          <details class="math-panel" name="nexus-math" open>
+            <summary><span class="math-index">01</span><span class="math-topic">Freshness &amp; flow<small>Events · Spark · source-to-answer latency</small></span><span class="math-count">3 equations</span><span class="math-toggle" aria-hidden="true">+</span></summary>
+            <div class="math-panel-body">
+              <article class="math-card"><span class="math-card-label">End-to-end latency</span><p class="math-formula">L<sub>e2e</sub> = L<sub>capture</sub> + L<sub>queue</sub> + L<sub>transform</sub> + L<sub>publish</sub></p><p>Budget each stage separately; a fast Spark job cannot rescue a stalled capture or publish step.</p></article>
+              <article class="math-card"><span class="math-card-label">Age of visible data</span><p class="math-formula">F = t<sub>now</sub> − max(t<sub>event, visible</sub>)</p><p>Measure freshness from the newest source event a consumer can actually query. Source clocks must be trustworthy.</p></article>
+              <article class="math-card"><span class="math-card-label">Streaming backlog</span><p class="math-formula">B<sub>t+1</sub> = max(0, B<sub>t</sub> + λ<sub>t</sub> − μ<sub>t</sub>)</p><p>Arrivals λ and processing μ use the same time interval. If incoming device events outrun processing, backlog grows.</p></article>
+            </div>
+          </details>
+          <details class="math-panel" name="nexus-math">
+            <summary><span class="math-index">02</span><span class="math-topic">Quality &amp; reconciliation<small>dbt · curated models · release gates</small></span><span class="math-count">3 equations</span><span class="math-toggle" aria-hidden="true">+</span></summary>
+            <div class="math-panel-body">
+              <article class="math-card"><span class="math-card-label">Eligible-record completeness</span><p class="math-formula">C = N<sub>loaded eligible</sub> / N<sub>source eligible</sub></p><p>Compare the same filtered population at source and target; define eligibility before calling a load complete.</p></article>
+              <article class="math-card"><span class="math-card-label">Duplicate event rate</span><p class="math-formula">D = (N<sub>rows</sub> − N<sub>distinct event IDs</sub>) / N<sub>rows</sub></p><p>Catch replay or join amplification before a duplicate reaches a certified model.</p></article>
+              <article class="math-card"><span class="math-card-label">Critical quality gate</span><p class="math-formula">G = ∧<sub>i ∈ critical checks</sub> pass<sub>i</sub></p><p>A release needs every critical check to pass. An average score must not hide a broken business rule.</p></article>
+            </div>
+          </details>
+          <details class="math-panel" name="nexus-math">
+            <summary><span class="math-index">03</span><span class="math-topic">The math of flexibility<small>Illustrative energy-data definitions · not a production claim</small></span><span class="math-count">3 equations</span><span class="math-toggle" aria-hidden="true">+</span></summary>
+            <div class="math-panel-body">
+              <article class="math-card"><span class="math-card-label">Energy from interval power</span><p class="math-formula">E<sub>kWh</sub> = Σ<sub>t</sub> P<sub>kW,t</sub> Δt<sub>h</sub></p><p>Integrate average power across time intervals. Keep units and interval boundaries explicit before aggregating a fleet.</p></article>
+              <article class="math-card"><span class="math-card-label">Downward load shift</span><p class="math-formula">ΔP<sub>t</sub> = P<sub>baseline,t</sub> − P<sub>actual,t</sub></p><p>With this sign convention, a positive value means less grid demand than the baseline. A baseline method must be agreed before using it commercially.</p></article>
+              <article class="math-card"><span class="math-card-label">Available reduction</span><p class="math-formula">F<sub>t</sub> = Σ<sub>i</sub> a<sub>i,t</sub> ΔP<sub>i,t</sub></p><p>Sum estimated reduction for available assets only, where a is 0 or 1. In practice, eligibility, consent and confidence also belong in the contract.</p></article>
+            </div>
+          </details>
+          <details class="math-panel" name="nexus-math">
+            <summary><span class="math-index">04</span><span class="math-topic">Safe publish &amp; recovery<small>Nexus Go operator · Iceberg snapshots</small></span><span class="math-count">3 equations</span><span class="math-toggle" aria-hidden="true">+</span></summary>
+            <div class="math-panel-body">
+              <article class="math-card"><span class="math-card-label">Stable run identity</span><p class="math-formula">r = hash(uid ∥ generation ∥ trigger)</p><p>A restarted controller derives the same logical run ID rather than inventing a second publication attempt.</p></article>
+              <article class="math-card"><span class="math-card-label">Idempotent retry</span><p class="math-formula">apply(apply(S, r), r) = apply(S, r)</p><p>Applying the same run twice should leave the published state S exactly where one application leaves it.</p></article>
+              <article class="math-card"><span class="math-card-label">Proof after timeout</span><p class="math-formula">published(r) ⇔ ∃s ∈ ancestry(main): run_id(s) = r</p><p>Inspect main’s snapshot history for the run ID before deciding whether an ambiguous commit took effect.</p></article>
+            </div>
+          </details>
+          <details class="math-panel" name="nexus-math">
+            <summary><span class="math-index">05</span><span class="math-topic">Service levels &amp; cost<small>Operations · warehouse economics · ownership</small></span><span class="math-count">3 equations</span><span class="math-toggle" aria-hidden="true">+</span></summary>
+            <div class="math-panel-body">
+              <article class="math-card"><span class="math-card-label">On-time run rate</span><p class="math-formula">A = N<sub>on-time</sub> / N<sub>eligible runs</sub></p><p>Count runs that delivered usable data by the agreed deadline, not jobs that merely ended successfully.</p></article>
+              <article class="math-card"><span class="math-card-label">Error budget</span><p class="math-formula">E = (1 − SLO) × N<sub>eligible runs</sub></p><p>An illustrative SLO turns a reliability target into a finite number of late runs that incident reviews can track.</p></article>
+              <article class="math-card"><span class="math-card-label">Cost per trusted record</span><p class="math-formula">C<sub>unit</sub> = (C<sub>compute</sub> + C<sub>storage</sub> + C<sub>transfer</sub>) / N<sub>trusted</sub></p><p>Compare like-for-like workloads while tuning Spark jobs or warehouse models; include only records that clear quality gates.</p></article>
+            </div>
+          </details>
+        </div>
+        <p class="math-footnote">The formulas are design and monitoring tools. Only the 24 h to under 5 min result above is a reported Lifepal outcome; the other symbols do not imply measured Octopus or Lifepal SLO values.</p>
+      </div>
+    </section>
+
+    <section id="conversation" class="conversation page-width" aria-labelledby="conversation-title">
+      <div class="section-intro"><p class="eyebrow"><span class="eyebrow-line"></span> The conversation</p><h2 id="conversation-title">Pull up a chair.</h2><p>Four questions I would expect for Flexibility’s first dedicated data engineering hire. Each answer points to a design choice, a reported outcome, or code you can inspect.</p></div>
+      <div class="conversation-list">
+        <article class="conversation-turn">
+          <div class="turn-index">01 <span>Greenfield</span></div>
+          <div class="turn-body"><p class="prompt">Where would you begin as the first data engineer on the team?</p><div class="response"><span class="speaker">Firman</span><p>I would map the most valuable source-to-decision paths with product and backend engineers, then define ownership, event identity, freshness and the first reliable data product. At Lifepal, I led a move from scattered batch jobs toward one governed lakehouse. Kafka and Debezium carried change events; APIs and partner files took the batch path. Both landed behind common quality rules.</p><p>Reporting delay went from 24 hours to under five minutes. For Flexibility, I would measure its own starting point before promising a target.</p></div></div>
+          <div class="turn-aside"><strong>24 h <span aria-hidden="true">→</span> &lt;5 min</strong><span>Reported change in reporting delay at Lifepal</span></div>
+        </article>
+        <article class="conversation-turn">
+          <div class="turn-index">02 <span>Reliability</span></div>
+          <div class="turn-body"><p class="prompt">How would you keep a flexibility data product trustworthy?</p><div class="response"><span class="speaker">Firman</span><p>Give the dataset a contract: stable event IDs, event time, replay rules, checks, freshness alerts and an owner. The Nexus operator reference implementation explores one hard edge of that contract. A run writes to an isolated Iceberg branch, audits it, then tries to publish. If the commit response is ambiguous, the controller checks catalog state and the run ID before acting.</p><p>A timeout is an unknown outcome, not proof of failure. That principle matters whenever downstream decisions depend on one authoritative version of the data.</p></div></div>
+          <a class="aside-link" href="#failure-drill">Try the failure drill <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="conversation-turn">
+          <div class="turn-index">03 <span>Enablement</span></div>
+          <div class="turn-body"><p class="prompt">How would you help backend engineers build on the platform?</p><div class="response"><span class="speaker">Firman</span><p>I would turn hard-won data rules into usable defaults: a Python ingestion template, clear dataset contracts, CI checks, runbooks and examples colleagues can extend. At Lifepal, I built a config-driven ingestion framework, curated models for several teams, and checks that held anomalous loads before consumers saw them.</p><p>That work included more than 500 data-quality checks and cut data-trust escalations by 60%, as reported in my CV. I would use pairing and short reviews to make the platform a shared capability.</p></div></div>
+          <div class="turn-aside"><strong>500+</strong><span>Quality checks in the Lifepal platform</span></div>
+        </article>
+        <article class="conversation-turn">
+          <div class="turn-index">04 <span>Integration</span></div>
+          <div class="turn-body"><p class="prompt">How would the new AWS environment meet the existing warehouse?</p><div class="response"><span class="speaker">Firman</span><p>I would agree the data product boundary with the established Databricks team: durable S3 history, versioned schemas, incremental ingestion, ownership and tested dbt or SQL models. The new environment should publish dependable interfaces, with lineage and monitoring that both teams can read.</p><p>At Lifepal, Spark and SQL tuning reduced a nightly batch from six hours to 90 minutes. I would bring that performance discipline while learning Octopus Energy’s existing conventions before setting its architecture in stone.</p></div></div>
+          <div class="turn-aside"><strong>6 h <span aria-hidden="true">→</span> 90 min</strong><span>Reported nightly batch improvement at Lifepal</span></div>
+        </article>
+      </div>
+      <p class="claim-note">Career outcomes in this section come from my CV and cover letter. The Flexibility design is a role-specific proposal. The Go operator below is a separate portfolio reference implementation; its tests do not measure Lifepal production outcomes.</p>
+    </section>
+
+    <section id="failure-drill" class="drill-section page-width" aria-labelledby="drill-title">
+      <div class="drill-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> An interactive walkthrough</p><h2 id="drill-title">A commit returns no clear answer. Now what?</h2></div><p>Choose a situation to see how the Nexus write–audit–publish design handles it. This browser model explains the decision path; the Go code and tests appear next.</p></div>
+      <div class="drill-grid">
+        <div class="scenario-panel"><span class="panel-caption">Choose a situation</span><div class="scenario-options" role="group" aria-label="Failure drill scenarios"><button class="scenario is-active" type="button" data-scenario="pass" aria-pressed="true"><strong>Audit passes</strong><span>Commit succeeds</span></button><button class="scenario" type="button" data-scenario="fail" aria-pressed="false"><strong>Audit fails</strong><span>Main stays untouched</span></button><button class="scenario" type="button" data-scenario="unknown" aria-pressed="false"><strong>Publish times out</strong><span>Observe before retry</span></button></div><p class="scenario-hint">The final path changes; the data contract does not.</p></div>
+        <div class="drill-output"><div class="output-header"><span class="panel-caption">Nexus operator · decision trace</span><span class="output-indicator" id="outcome-tag">Published</span></div><div class="trace-steps" aria-label="Pipeline stages"><div class="trace-step" data-step="write"><span>01</span><strong>Write</strong><small>isolated branch</small></div><div class="trace-step" data-step="audit"><span>02</span><strong>Audit</strong><small>quality rules</small></div><div class="trace-step" data-step="publish"><span>03</span><strong>Publish</strong><small>main snapshot</small></div></div><div class="trace-terminal" role="status" aria-live="polite"><span class="terminal-command">$ reconcile iceberg-wap-pipeline</span><pre id="trace-log"></pre></div><p class="trace-explainer" id="trace-explainer"></p></div>
+      </div>
+    </section>
+
+    <section id="proof" class="proof-section" aria-labelledby="proof-title">
+      <div class="page-width">
+        <div class="proof-heading"><div><p class="eyebrow light"><span class="eyebrow-line"></span> The code, not just the story</p><h2 id="proof-title">Look inside the decisions.</h2></div><p>Real excerpts from the Nexus operator reference implementation. Its Go test suite passed locally on 3 October 2026. The role uses Python; this code proves the underlying recovery and publishing logic.</p></div>
+        <div class="proof-layout">
+          <div class="code-panel"><div class="code-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="code-filename">icebergwappipeline_controller.go</span><span class="language-tag" id="code-language">GO</span></div><div class="code-tabs" role="tablist" aria-label="Code examples"><button type="button" class="code-tab is-active" role="tab" id="tab-nexus" aria-selected="true" aria-controls="code-display" data-code="nexus">Nexus recovery</button><button type="button" class="code-tab" role="tab" id="tab-test" aria-selected="false" aria-controls="code-display" data-code="test" tabindex="-1">Nexus test</button><button type="button" class="code-tab" role="tab" id="tab-runid" aria-selected="false" aria-controls="code-display" data-code="runid" tabindex="-1">Run identity</button></div><pre id="code-display" class="code-display" role="tabpanel" aria-labelledby="tab-nexus"><code>Loading source excerpt…</code></pre><div class="code-footer"><span id="code-source">Local Nexus portfolio source</span><a id="code-link" href="mailto:firman.insan.m@gmail.com?subject=Nexus%20operator%20source" target="_blank" rel="noopener noreferrer">Request full Nexus source <span aria-hidden="true">↗</span></a></div></div>
+          <aside class="proof-notes" aria-label="Evidence notes"><div class="proof-note primary"><span class="note-num">01 / Tested control plane</span><h3>Recovery is a code path.</h3><p>The Go test covers publish applied, publish not applied, lost status, and a different run ID. The controller tests passed locally.</p><span class="proof-pill">go test: passed</span></div><div class="proof-note"><span class="note-num">02 / Deterministic runs</span><h3>A retry finds its own work.</h3><p>The run ID derives from the resource UID, generation and trigger. A restarted controller can recover the same logical execution instead of inventing another one.</p></div><div class="proof-note subtle"><span class="note-num">Scope of proof</span><p>The interactive drill explains the decision path; it is not a live Kubernetes cluster. The code tabs show exact excerpts from the local Nexus operator reference implementation.</p></div></aside>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="contact" class="contact-section" aria-labelledby="contact-title"><div class="page-width contact-inner"><div><p class="eyebrow light"><span class="eyebrow-line"></span> Continue the conversation</p><h2 id="contact-title">Let’s talk about the first trusted flexibility data product.</h2><p>We can walk through source contracts, a Databricks model, an incident, or the trade-offs behind this platform.</p></div><div class="contact-actions"><a class="button button-light" href="mailto:firman.insan.m@gmail.com?subject=NEXUS%20for%20Octopus%20Energy%20Flexibility">Email Firman</a><a class="text-link light-link" href="https://www.linkedin.com/in/firmaninsan" target="_blank" rel="noopener noreferrer">Connect on LinkedIn <span aria-hidden="true">↗</span></a></div></div></section>
+  </main>
+  <footer class="site-footer page-width"><span>© 2026 Firman Insan Muhammad · London</span><span>An independent portfolio for Octopus Energy’s Senior Data Engineer, Flexibility role.</span><a class="footer-github" href="https://github.com/rfim" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>
