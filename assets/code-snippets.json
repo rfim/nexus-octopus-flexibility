@@ -1,26 +1,26 @@
 {
   "nexus": {
-    "filename": "icebergwappipeline_controller.go",
-    "language": "GO",
-    "source": "Nexus operator · local reference source · lines 290–324",
-    "link": "mailto:firman.insan.m@gmail.com?subject=Nexus%20operator%20source",
-    "linkText": "Request full Nexus source",
-    "code": "func findPublishedRun(state *catalog.TableState, runID string, branch *catalog.Ref, base int64, baseOK bool) *catalog.Snapshot {\n\tif state.Main == nil {\n\t\treturn nil\n\t}\n\t// Fast-forward detection. CRITICAL: require the branch to have actually\n\t// ADVANCED past its base. A freshly created branch sits AT base == main's\n\t// head, so a bare IsAncestor check is trivially true and would declare\n\t// every run published the instant its branch is created — before the\n\t// write job has done anything.\n\tif branch != nil && (!baseOK || branch.SnapshotID != base) &&\n\t\tstate.IsAncestor(branch.SnapshotID, state.Main) {\n\t\tif s, ok := state.Snapshots[branch.SnapshotID]; ok {\n\t\t\treturn &s\n\t\t}\n\t\treturn &catalog.Snapshot{ID: branch.SnapshotID}\n\t}\n\t// Walk main's ancestry looking for the writer-stamped run-id.\n\tcur := state.Main.SnapshotID\n\tseen := map[int64]bool{}\n\tfor !seen[cur] {\n\t\tseen[cur] = true\n\t\ts, ok := state.Snapshots[cur]\n\t\tif !ok {\n\t\t\treturn nil\n\t\t}\n\t\tif s.Summary[SnapshotSummaryRunID] == runID {\n\t\t\treturn &s\n\t\t}\n\t\tif s.ParentID == nil {\n\t\t\treturn nil\n\t\t}\n\t\tcur = *s.ParentID\n\t}\n\treturn nil\n}"
+    "filename": "delta_events.py",
+    "language": "PYTHON",
+    "source": "Runnable Delta Lake portfolio reference · lines 63–80",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/delta_events.py#L63-L80",
+    "linkText": "Open full Delta source",
+    "code": "def publish_events(table_path: str | Path, events: list[dict]) -> dict:\n    \"\"\"Validate, then MERGE unseen event IDs into a local Delta table.\"\"\"\n    source = validate_events(events)  # A bad batch cannot create or change the table.\n    table_path = Path(table_path)\n    if not (table_path / \"_delta_log\").exists():\n        write_deltalake(str(table_path), pa.Table.from_pylist([], schema=EVENT_SCHEMA))\n\n    table = DeltaTable(str(table_path))\n    return (\n        table.merge(\n            source=source,\n            predicate=\"target.event_id = source.event_id\",\n            source_alias=\"source\",\n            target_alias=\"target\",\n        )\n        .when_not_matched_insert_all()\n        .execute()\n    )"
   },
   "test": {
-    "filename": "wap_recovery_test.go",
-    "language": "GO TEST",
-    "source": "Nexus operator · local reference test · lines 68–98",
-    "link": "mailto:firman.insan.m@gmail.com?subject=Nexus%20operator%20source",
-    "linkText": "Request full Nexus source",
-    "code": "// TestPublishedDetection is the Challenge B disambiguation: after an\n// ambiguous commit, re-observation must correctly report whether the publish\n// happened.\nfunc TestPublishedDetection(t *testing.T) {\n\t// Case 1: commit did NOT apply — main still at 200, branch at 300.\n\ts := fixtureState()\n\tbr := catalog.Ref{Name: \"b\", SnapshotID: 300}\n\tif got := findPublishedRun(s, \"run123\", &br, 200, true); got != nil {\n\t\tt.Fatalf(\"publish not applied, but detector claims snapshot %d published\", got.ID)\n\t}\n\n\t// Case 2: commit DID apply — main fast-forwarded to 300.\n\ts.Main.SnapshotID = 300\n\tgot := findPublishedRun(s, \"run123\", &br, 200, true)\n\tif got == nil || got.ID != 300 {\n\t\tt.Fatal(\"publish applied (branch head is main): detector must report it\")\n\t}\n\n\t// Case 3: total amnesia — status lost AND branch already cleaned up.\n\t// The writer-stamped snapshot summary is the only surviving evidence.\n\tdelete(s.Branches, \"b\")\n\tgot = findPublishedRun(s, \"run123\", nil, 0, false)\n\tif got == nil || got.ID != 300 {\n\t\tt.Fatal(\"run-id summary stamp in main lineage must be sufficient on its own\")\n\t}\n\n\t// Case 4: different run's stamp must not match.\n\tif findPublishedRun(s, \"other-run\", nil, 0, false) != nil {\n\t\tt.Fatal(\"detector matched a foreign run-id\")\n\t}\n}"
+    "filename": "test_delta_events.py",
+    "language": "PYTHON",
+    "source": "Runnable Delta Lake portfolio reference · lines 22–31",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/test_delta_events.py#L22-L31",
+    "linkText": "Open replay test",
+    "code": "def test_replay_keeps_one_row_per_event_id(self) -> None:\n        with TemporaryDirectory() as directory:\n            first = publish_events(directory, [event(\"evt-1\"), event(\"evt-2\")])\n            replay = publish_events(directory, [event(\"evt-1\"), event(\"evt-2\")])\n\n            rows = DeltaTable(directory).to_pyarrow_table().to_pylist()\n            self.assertEqual(first[\"num_target_rows_inserted\"], 2)\n            self.assertEqual(replay[\"num_target_rows_inserted\"], 0)\n            self.assertEqual({row[\"event_id\"] for row in rows}, {\"evt-1\", \"evt-2\"})\n            self.assertEqual(len(rows), 2)"
   },
   "runid": {
-    "filename": "common.go",
-    "language": "GO",
-    "source": "Nexus operator · local reference source · lines 108–113",
-    "link": "mailto:firman.insan.m@gmail.com?subject=Nexus%20operator%20source",
-    "linkText": "Request full Nexus source",
-    "code": "// RunID is the deterministic identity of one logical execution:\n// hash(uid, generation, triggerInstance). Retries of the same logical run\n// produce the same ID across operator restarts and API partitions.\nfunc RunID(uid types.UID, generation int64, triggerInstance string) string {\n\treturn hash12(uid, generation, triggerInstance)\n}"
+    "filename": "delta_events.py",
+    "language": "PYTHON",
+    "source": "Runnable Delta Lake portfolio reference · lines 25–60",
+    "link": "https://github.com/rfim/nexus-octopus-flexibility/blob/main/examples/delta_events.py#L25-L60",
+    "linkText": "Open validation source",
+    "code": "def validate_events(events: list[dict]) -> pa.Table:\n    \"\"\"Reject an entire batch if any event fails its source contract.\"\"\"\n    if not events:\n        raise ValueError(\"A batch needs at least one event\")\n\n    seen: set[str] = set()\n    rows: list[dict] = []\n    for event in events:\n        event_id = event.get(\"event_id\")\n        asset_id = event.get(\"asset_id\")\n        if not isinstance(event_id, str) or not event_id.strip():\n            raise ValueError(\"event_id is required\")\n        if event_id in seen:\n            raise ValueError(f\"duplicate event_id in batch: {event_id}\")\n        if not isinstance(asset_id, str) or not asset_id.strip():\n            raise ValueError(\"asset_id is required\")\n\n        try:\n            timestamp = datetime.fromisoformat(event[\"event_time\"].replace(\"Z\", \"+00:00\"))\n            power_kw = float(event[\"power_kw\"])\n        except (AttributeError, KeyError, TypeError, ValueError) as exc:\n            raise ValueError(f\"invalid event fields: {event_id}\") from exc\n        if timestamp.tzinfo is None or not isfinite(power_kw):\n            raise ValueError(f\"event needs timezone and finite power: {event_id}\")\n\n        seen.add(event_id)\n        rows.append(\n            {\n                \"event_id\": event_id,\n                \"asset_id\": asset_id,\n                \"event_time\": timestamp.astimezone(timezone.utc).isoformat(),\n                \"power_kw\": power_kw,\n            }\n        )\n\n    return pa.Table.from_pylist(rows, schema=EVENT_SCHEMA)"
   }
 }

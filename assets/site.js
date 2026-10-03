@@ -1,24 +1,24 @@
 const scenarios = {
   pass: {
-    outcome: 'Published',
+    outcome: 'Inserted',
     tone: '',
     steps: ['done', 'done', 'done'],
-    log: '[write] branch nexus-…-run123 advanced to snapshot 300\n[audit] all declared rules passed\n[publish] main fast-forwarded 200 → 300',
-    explanation: 'A successful audit permits one atomic move of main. Readers see the new snapshot only after publication.'
+    log: '[validate] 2 events pass the source contract\n[merge] 2 unseen event IDs inserted\n[read] Delta table contains 2 unique events',
+    explanation: 'A valid first batch reaches MERGE. The Delta table records each unseen event ID once.'
   },
   fail: {
     outcome: 'Held back',
     tone: 'failed',
-    steps: ['done', 'stop', ''],
-    log: '[write] branch nexus-…-run123 advanced to snapshot 300\n[audit] required rule failed\n[cleanup] drop isolated branch; main remains at 200',
-    explanation: 'A failed audit never reaches the publish call. The branch can be cleaned up while main keeps serving the previous snapshot.'
+    steps: ['stop', '', 'done'],
+    log: '[validate] power_kw is not finite\n[merge] skipped: no table write attempted\n[read] Delta version unchanged; previous row remains',
+    explanation: 'Validation rejects the full batch before MERGE. The test checks that the Delta transaction version does not move.'
   },
-  unknown: {
-    outcome: 'Re-observe',
+  replay: {
+    outcome: 'No duplicates',
     tone: 'unknown',
-    steps: ['done', 'done', 'wait'],
-    log: '[write] branch nexus-…-run123 advanced to snapshot 300\n[audit] all declared rules passed\n[publish] response timed out; outcome unknown\n[reconcile] read main lineage + stamped run ID before acting',
-    explanation: 'The controller treats a timeout as ambiguous. It checks catalog state on the next reconcile instead of blindly publishing again.'
+    steps: ['done', 'done', 'done'],
+    log: '[validate] 2 repeated events pass the source contract\n[merge] 0 unseen event IDs inserted\n[read] same 2 unique events remain visible',
+    explanation: 'MERGE matches on event ID. Replaying a valid batch changes no visible rows in the tested reference.'
   }
 };
 
